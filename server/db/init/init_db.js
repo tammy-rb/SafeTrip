@@ -3,6 +3,7 @@ const clearDBTables = require('./clearDB');
 const createTeachersTable = require('./createTeachersTable');
 const createStudentsTable = require('./createStudentsTable');
 const createPasswordsTable = require('./createPasswordsTable');
+const createStudentLocationsLatestTable = require('./createStudentLocationsLatestTable');
 const seedData = require('./seedData');
 
 const init_db = async (result) => {
@@ -12,6 +13,7 @@ const init_db = async (result) => {
     await createTeachersTable();
     await createStudentsTable();
     await createPasswordsTable();
+    await createStudentLocationsLatestTable();
     await seedData();
 
     if (typeof result === 'function') {   //callback: result(error, data)

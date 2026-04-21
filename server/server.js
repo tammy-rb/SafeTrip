@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const studentsRoutes = require('./routes/studentsRoutes');
 const teachersRoutes = require('./routes/teachersRoutes');
 const authRoutes = require('./routes/authRoutes');
+const trackingRoutes = require('./routes/trackingRoutes');
 const { requireAuth, requireTeacher } = require('./middleware/authMiddleware');
 
 dotenv.config({ path: ENV_PATH });
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/tracking', trackingRoutes);
 app.use('/students', requireAuth, requireTeacher, studentsRoutes);
 app.use('/teachers', requireAuth, requireTeacher, teachersRoutes);
 
