@@ -26,4 +26,31 @@ export const logoutUser = async () => {
   return response.data
 }
 
+/* Fetches students list for a specific class, with optional ID filter. */
+export const getStudentsByClass = async ({ class_name, id_number }) => {
+  const response = await api.get('/students', {
+    params: {
+      class_name,
+      id_number: id_number || undefined,
+    },
+  })
+  return response.data
+}
+
+/* Fetches latest tracking locations, optionally filtered by class. */
+export const getLatestLocations = async ({ class_name }) => {
+  const response = await api.get('/tracking/latest', {
+    params: {
+      class_name,
+    },
+  })
+  return response.data
+}
+
+/* Creates a new student record. */
+export const createStudent = async (payload) => {
+  const response = await api.post('/students', payload)
+  return response.data
+}
+
 export default api

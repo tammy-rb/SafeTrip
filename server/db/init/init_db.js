@@ -5,6 +5,7 @@ const createStudentsTable = require('./createStudentsTable');
 const createPasswordsTable = require('./createPasswordsTable');
 const createStudentLocationsLatestTable = require('./createStudentLocationsLatestTable');
 const seedData = require('./seedData');
+const seedStudentLocationsTelAviv = require('./seedStudentLocationsTelAviv');
 
 /* Recreates the DB schema and seeds initial data. */
 const init_db = async (result) => {
@@ -16,6 +17,7 @@ const init_db = async (result) => {
     await createPasswordsTable();
     await createStudentLocationsLatestTable();
     await seedData();
+    await seedStudentLocationsTelAviv();
 
     if (typeof result === 'function') {   //callback: result(error, data)
       result(null, 'Database and tables created successfully');

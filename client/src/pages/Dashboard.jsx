@@ -1,8 +1,85 @@
-import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material'
-import { logoutUser } from '../services/api'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Divider,
+  Stack,
+  Typography,
+} from '@mui/material'
+import CreateStudentDialog from '../components/CreateStudentDialog'
+import MapView from '../components/MapView'
+import SearchBar from '../components/SearchBar'
+import StudentsTable from '../components/StudentsTable'
+import { getLatestLocations, getStudentsByClass, logoutUser } from '../services/api'
 
-/* Placeholder teacher dashboard for phase 1. */
+/* Renders teacher dashboard with students, map, and create-student flow. */
 function Dashboard({ session, onLogout }) {
+  const [students, setStudents] = useState([])
+  const [locations, setLocations] = useState([])
+  const [searchId, setSearchId] = useState('') // for filtering students by ID number
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [createOpen, setCreateOpen] = useState(false)
+
+  const className = session?.user?.class_name  // class of the teacher
+
+  /* Loads students and location data for teacher class. */
+  const loadData = async () => {
+    if (!className) {
+      return
+    }
+
+    setError('')
+    setLoading(true)
+
+    try {
+      const [studentsResult, locationsResult] = await Promise.all([
+        getStudentsByClass({ class_name: className }),
+        getLatestLocations({ class_name: className }),
+      ])
+
+      setStudents(studentsResult)
+      setLocations(locationsResult)
+    } catch (requestError) {
+      setError(requestError.response?.data?.error || 'Failed to load dashboard data.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /* Polls latest locations every 60 seconds for real-time updates. */
+  useEffect(() => {
+    if (!className) {
+      return undefined
+    }
+
+    loadData()  // students and locations on initial load
+
+    const intervalId = window.setInterval(async () => {
+      try {
+        const locationsResult = await getLatestLocations({ class_name: className })
+        setLocations(locationsResult)
+      } catch {
+        // silent polling failure; manual refresh can recover
+      }
+    }, 60000)
+
+    return () => window.clearInterval(intervalId)
+  }, [className])
+
+  /* Filters students table by typed ID number. */
+  const filteredStudents = useMemo(() => {
+    const value = searchId.trim()
+    if (!value) {
+      return students
+    }
+    return students.filter((student) => String(student.id_number).includes(value))
+  }, [students, searchId])
+
   /* Logs out user on server and clears local session state. */
   const handleLogout = async () => {
     try {
@@ -12,33 +89,81 @@ function Dashboard({ session, onLogout }) {
     }
   }
 
+  /* Opens the create-student dialog and resets form messages. */
+  const handleOpenCreate = () => {
+    setCreateOpen(true)
+  }
+
+  /* Closes the create-student dialog. */
+  const handleCloseCreate = () => {
+    setCreateOpen(false)
+  }
+
   return (
     <Box
       sx={{
         minHeight: '100vh',
-        display: 'grid',
-        placeItems: 'center',
+        py: 4,
         px: 2,
       }}
     >
-      <Card sx={{ width: '100%', maxWidth: 640 }}>
+      <Card sx={{ width: '100%', maxWidth: 1100, mx: 'auto' }}>
         <CardContent>
-          <Stack spacing={2.5}>
-            <Typography variant="h4" component="h1">
-              Teacher Dashboard
-            </Typography>
-            <Typography>
-              Logged in as {session?.user?.first_name} {session?.user?.last_name}
-            </Typography>
-            <Typography color="text.secondary">
-              Placeholder: dashboard content is not implemented yet.
-            </Typography>
-            <Button type="button" variant="outlined" onClick={handleLogout}>
-              Logout
-            </Button>
+          <Stack spacing={3}>
+            <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2}>
+              <Box>
+                <Typography variant="h4" component="h1">
+              Track Dashboard
+                </Typography>
+                <Typography color="text.secondary">
+                  {session?.user?.first_name} {session?.user?.last_name} | Class {className}
+                </Typography>
+              </Box>
+              <Button type="button" variant="outlined" onClick={handleLogout} sx={{ alignSelf: 'flex-start' }}>
+                Logout
+              </Button>
+            </Stack>
+
+            <Divider />
+
+            <Stack spacing={1.5}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1.5}>
+                <Typography variant="h6">Students List</Typography>
+                <Button variant="contained" onClick={handleOpenCreate}>
+                  Add Student
+                </Button>
+              </Stack>
+              <SearchBar
+                value={searchId}
+                onChange={setSearchId}
+                onRefresh={loadData}
+                loading={loading}
+              />
+              {error ? <Alert severity="error">{error}</Alert> : null}
+              {loading ? (
+                <Box sx={{ py: 2, display: 'flex', justifyContent: 'center' }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : (
+                <StudentsTable students={filteredStudents} />
+              )}
+            </Stack>
+
+            <Divider />
+
+            <Stack spacing={1.5}>
+              <Typography variant="h6">Locations Map</Typography>
+              <MapView locations={locations} />
+            </Stack>
           </Stack>
         </CardContent>
       </Card>
+      <CreateStudentDialog
+        open={createOpen}
+        className={className}
+        onClose={handleCloseCreate}
+        onCreated={loadData}
+      />
     </Box>
   )
 }
