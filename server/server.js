@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 const { ENV_PATH } = require('./paths');
 const express = require('express');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const studentsRoutes = require('./routes/studentsRoutes');
 const teachersRoutes = require('./routes/teachersRoutes');
@@ -12,7 +13,13 @@ dotenv.config({ path: ENV_PATH });
 
 const PORT = process.env.PORT || 5000;
 const app = express();
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 
+/* Enables cross-origin requests from the React client with cookies. */
+app.use(cors({
+  origin: CLIENT_ORIGIN,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
