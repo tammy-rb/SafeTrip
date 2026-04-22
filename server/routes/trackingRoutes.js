@@ -1,10 +1,12 @@
 const express = require('express');
 const TrackingBL = require('../BL/trackingBL');
+const { requireAuth, requireTeacher } = require('../middleware/authMiddleware');
+const { requireStudentOwnTrackingId } = require('../middleware/trackingMiddleware');
 
 const router = express.Router();
 
 /* Receives a location payload and saves it as the student's latest location. */
-router.post('/location', async (req, res) => {
+router.post('/location', requireAuth, requireStudentOwnTrackingId, async (req, res) => {
   try {
     const result = await TrackingBL.ingestLocation(req.body);
     return res.status(200).json(result);
@@ -14,9 +16,13 @@ router.post('/location', async (req, res) => {
 });
 
 /* Returns latest location rows for all students. */
-router.get('/latest', async (req, res) => {
+router.get('/latest', requireAuth, requireTeacher, async (req, res) => {
   try {
-    const rows = await TrackingBL.getLatestAll();
+    const filters = {
+      class_name: req.query.class_name || req.query.class,
+    };
+
+    const rows = await TrackingBL.getLatestAll(filters);
     return res.status(200).json(rows);
   } catch (error) {
     return res.status(error.status || 500).json({ error: error.message });
@@ -24,7 +30,7 @@ router.get('/latest', async (req, res) => {
 });
 
 /* Returns the latest location row for one student. */
-router.get('/latest/:id_number', async (req, res) => {
+router.get('/latest/:id_number', requireAuth, requireTeacher, async (req, res) => {
   try {
     const row = await TrackingBL.getLatestByIdNumber(req.params.id_number);
     return res.status(200).json(row);

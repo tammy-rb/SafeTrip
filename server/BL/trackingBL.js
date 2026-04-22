@@ -94,9 +94,9 @@ class TrackingBL {
     return { ok: true };
   }
 
-  /* Returns latest locations for all students. */
-  static async getLatestAll() {
-    return TrackingDL.getLatestAll();
+  /* Returns latest locations for all students, with optional class filter. */
+  static async getLatestAll(filters = {}) {
+    return TrackingDL.getLatestAll(filters);
   }
 
   /* Returns latest location for one student by ID number. */

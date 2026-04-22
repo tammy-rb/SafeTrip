@@ -62,28 +62,37 @@ class TrackingDL {
     }
   }
 
-  /* Returns latest location rows for all students. */
-  static async getLatestAll() {
+  /* Returns latest location rows for all students, optionally filtered by class. */
+  static async getLatestAll(filters = {}) {
     const connection = await connectDB();
     try {
-      const [rows] = await connection.query(
-        `
+      let sql = `
           SELECT
-            student_id_number,
-            longitude_decimal,
-            latitude_decimal,
-            raw_longitude_deg,
-            raw_longitude_min,
-            raw_longitude_sec,
-            raw_latitude_deg,
-            raw_latitude_min,
-            raw_latitude_sec,
-            device_time,
-            received_at
-          FROM StudentLocationsLatest
-          ORDER BY student_id_number ASC
-        `,
-      );
+            l.student_id_number,
+            l.longitude_decimal,
+            l.latitude_decimal,
+            l.raw_longitude_deg,
+            l.raw_longitude_min,
+            l.raw_longitude_sec,
+            l.raw_latitude_deg,
+            l.raw_latitude_min,
+            l.raw_latitude_sec,
+            l.device_time,
+            l.received_at,
+            s.class_name
+          FROM StudentLocationsLatest l
+          JOIN Students s ON s.id_number = l.student_id_number
+      `;
+
+      const params = [];
+      if (filters.class_name) {
+        sql += ' WHERE s.class_name = ?';
+        params.push(filters.class_name);
+      }
+
+      sql += ' ORDER BY l.student_id_number ASC';
+
+      const [rows] = await connection.query(sql, params);
       return rows;
     } finally {
       await connection.end();

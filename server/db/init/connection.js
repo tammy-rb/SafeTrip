@@ -1,6 +1,10 @@
-const mysql = require('mysql2/promise');    // async\await style MySQL client
-require('dotenv').config();
+const mysql = require('mysql2/promise');
+const dotenv = require('dotenv');
+const { ENV_PATH } = require('../../paths');
 
+dotenv.config({ path: ENV_PATH });
+
+/* Opens a MySQL connection using environment configuration. */
 const connectDB = async () => {
   const connection = await mysql.createConnection({
     host: process.env.MYSQL_HOST,

@@ -6,6 +6,7 @@ const createPasswordsTable = require('./createPasswordsTable');
 const createStudentLocationsLatestTable = require('./createStudentLocationsLatestTable');
 const seedData = require('./seedData');
 
+/* Recreates the DB schema and seeds initial data. */
 const init_db = async (result) => {
   try {
     await createDB();
@@ -29,5 +30,18 @@ const init_db = async (result) => {
     return 'Error initializing database: ' + error.message;
   }
 };
+
+/* Allows direct execution: node db/init/init_db.js */
+if (require.main === module) {
+  init_db()
+    .then((msg) => {
+      console.log(msg);
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
+}
 
 module.exports = init_db;
