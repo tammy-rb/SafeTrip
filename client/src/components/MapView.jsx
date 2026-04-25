@@ -2,20 +2,26 @@ import { useEffect, useMemo, useRef } from 'react'
 import { Box, Typography } from '@mui/material'
 import L from 'leaflet'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
-
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIconImage from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 
-/* marker icon assets for Leaflet. */
-const markerIcon = L.icon({
-  iconUrl: markerIconImage,
-  iconRetinaUrl: markerIcon2x,
+/* Builds a Leaflet icon marker. give the ability to choose another color. */
+const buildPinIcon = (iconUrl, iconRetinaUrl) => L.icon({
+  iconUrl,
+  iconRetinaUrl,
   shadowUrl: markerShadow,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 })
+
+const defaultMarkerIcon = buildPinIcon(markerIconImage, markerIcon2x)
+const redMarkerIcon = buildPinIcon(
+  'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+)
 
 /* Fits map bounds to all visible points when data is first loaded or marker count changes. */
 function FitMapToLocations({ locations }) {
@@ -85,12 +91,14 @@ function MapView({ locations }) {
             <Marker
               key={loc.student_id_number}
               position={[Number(loc.latitude_decimal), Number(loc.longitude_decimal)]}
-              icon={markerIcon}
+              icon={loc.is_far_from_teacher ? redMarkerIcon : defaultMarkerIcon}
             >
               <Popup>
                 <div>
                   <div>ID: {loc.student_id_number}</div>
                   <div>Class: {loc.class_name}</div>
+                  <div>Distance: {loc.distance_km ?? '-'} km</div>
+                  <div>Alert: {loc.is_far_from_teacher ? 'More than 3 km' : 'Within 3 km'}</div>
                   <div>Updated: {new Date(loc.device_time).toLocaleString()}</div>
                 </div>
               </Popup>

@@ -29,6 +29,16 @@ router.get('/latest', requireAuth, requireTeacher, async (req, res) => {
   }
 });
 
+/* Returns class student locations with distance and >3km flag from teacher latest location. */
+router.get('/locations-alerts', requireAuth, requireTeacher, async (req, res) => {
+  try {
+    const result = await TrackingBL.getLocationsWithAlertsForTeacher(req.user.id_number);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(error.status || 500).json({ error: error.message });
+  }
+});
+
 /* Returns the latest location row for one student. */
 router.get('/latest/:id_number', requireAuth, requireTeacher, async (req, res) => {
   try {

@@ -14,7 +14,7 @@ import CreateStudentDialog from '../components/CreateStudentDialog'
 import MapView from '../components/MapView'
 import SearchBar from '../components/SearchBar'
 import StudentsTable from '../components/StudentsTable'
-import { getLatestLocations, getStudentsByClass, logoutUser } from '../services/api'
+import { getLocationsWithAlerts, getStudentsByClass, logoutUser } from '../services/api'
 
 /* Renders teacher dashboard with students, map, and create-student flow. */
 function Dashboard({ session, onLogout }) {
@@ -39,11 +39,11 @@ function Dashboard({ session, onLogout }) {
     try {
       const [studentsResult, locationsResult] = await Promise.all([
         getStudentsByClass({ class_name: className }),
-        getLatestLocations({ class_name: className }),
+        getLocationsWithAlerts(),
       ])
 
       setStudents(studentsResult)
-      setLocations(locationsResult)
+      setLocations(locationsResult.students || [])
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Failed to load dashboard data.')
     } finally {
@@ -61,8 +61,8 @@ function Dashboard({ session, onLogout }) {
 
     const intervalId = window.setInterval(async () => {
       try {
-        const locationsResult = await getLatestLocations({ class_name: className })
-        setLocations(locationsResult)
+        const locationsResult = await getLocationsWithAlerts()
+        setLocations(locationsResult.students || [])
       } catch {
         // silent polling failure; manual refresh can recover
       }

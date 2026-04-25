@@ -112,6 +112,62 @@ class TrackingBL {
 
     return row;
   }
+
+  /* Computes air distance in kilometers using Haversine formula. */
+  static haversineKm(lat1, lon1, lat2, lon2) {
+    const toRadians = (value) => (value * Math.PI) / 180;
+
+    const earthRadiusKm = 6371;
+    const deltaLat = toRadians(lat2 - lat1);
+    const deltaLon = toRadians(lon2 - lon1);
+
+    const a =
+      Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return earthRadiusKm * c;
+  }
+
+  /* Returns latest class students locations with distance and >3km alert flag for a teacher. */
+  static async getLocationsWithAlertsForTeacher(teacherIdNumber) {
+
+    const teacher = await TrackingDL.getTeacherByIdNumber(teacherIdNumber);
+    if (!teacher) {
+      throw this.makeError('Teacher not found.', 404);
+    }
+
+    const teacherLocation = await TrackingDL.getTeacherLatestByTeacherId(teacher.id_number);
+    if (!teacherLocation) {
+      throw this.makeError('Latest teacher location not found for this teacher.', 404);
+    }
+
+    const studentRows = await TrackingDL.getLatestAll({ class_name: teacher.class_name });
+
+    const teacherLat = Number(teacherLocation.latitude_decimal);
+    const teacherLon = Number(teacherLocation.longitude_decimal);
+    const thresholdKm = 3;
+
+    const students = studentRows.map((row) => {
+      const studentLat = Number(row.latitude_decimal);
+      const studentLon = Number(row.longitude_decimal);
+      const distanceKm = this.haversineKm(teacherLat, teacherLon, studentLat, studentLon);
+      const roundedDistanceKm = Number(distanceKm.toFixed(3));
+
+      return {
+        ...row,
+        distance_km: roundedDistanceKm,
+        is_far_from_teacher: roundedDistanceKm > thresholdKm,
+      };
+    });
+
+    return {
+      threshold_km: thresholdKm,
+      teacher_location: teacherLocation,
+      students,
+    };
+  }
 }
 
 module.exports = TrackingBL;

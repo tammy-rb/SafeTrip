@@ -62,6 +62,49 @@ class TrackingDL {
     }
   }
 
+  /* Returns teacher row by id_number. */
+  static async getTeacherByIdNumber(idNumber) {
+    const connection = await connectDB();
+    try {
+      const [rows] = await connection.query(
+        'SELECT id_number, class_name FROM Teachers WHERE id_number = ?',
+        [idNumber],
+      );
+      return rows[0] || null;
+    } finally {
+      await connection.end();
+    }
+  }
+
+  /* Returns latest teacher location row for one teacher id_number. */
+  static async getTeacherLatestByTeacherId(teacherIdNumber) {
+    const connection = await connectDB();
+    try {
+      const [rows] = await connection.query(
+        `
+          SELECT
+            teacher_id,
+            longitude_decimal,
+            latitude_decimal,
+            raw_longitude_deg,
+            raw_longitude_min,
+            raw_longitude_sec,
+            raw_latitude_deg,
+            raw_latitude_min,
+            raw_latitude_sec,
+            device_time,
+            received_at
+          FROM TeacherLocationsLatest
+          WHERE teacher_id = ?
+        `,
+        [teacherIdNumber],
+      );
+      return rows[0] || null;
+    } finally {
+      await connection.end();
+    }
+  }
+
   /* Returns latest location rows for all students, optionally filtered by class. */
   static async getLatestAll(filters = {}) {
     const connection = await connectDB();

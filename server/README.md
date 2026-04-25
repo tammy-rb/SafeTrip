@@ -238,6 +238,7 @@ Current behavior:
 Access rules:
 - POST /tracking/location requires student authentication and only for the same student ID.
 - GET /tracking/latest and GET /tracking/latest/:id_number are teacher-only.
+- GET /tracking/locations-alerts is teacher-only.
 
 ### POST /tracking/location
 Description:
@@ -316,6 +317,75 @@ Success response 200:
 
 Not found 404:
 - { "error": "Latest location not found for this student." }
+
+### GET /tracking/locations-alerts
+Description:
+- Returns latest locations for the authenticated teacher's students, plus air-distance and alert flag per student.
+- Teacher is identified from JWT cookie (`jwt`), not from query/body.
+- Distance is computed as straight-line (Haversine) and alert is true when distance is greater than 3 km.
+
+Request:
+- No request body
+- No query params
+- Requires valid teacher auth cookie
+
+Success response 200:
+- {
+    "threshold_km": 3,
+    "teacher_location": {
+      "teacher_id": "302111111",
+      "longitude_decimal": 34.7805556,
+      "latitude_decimal": 32.0875000,
+      "raw_longitude_deg": 34,
+      "raw_longitude_min": 46,
+      "raw_longitude_sec": 50,
+      "raw_latitude_deg": 32,
+      "raw_latitude_min": 5,
+      "raw_latitude_sec": 15,
+      "device_time": "2026-04-22T13:00:00.000Z",
+      "received_at": "2026-04-25T11:22:33.000Z"
+    },
+    "students": [
+      {
+        "student_id_number": "323000001",
+        "longitude_decimal": 34.7836111,
+        "latitude_decimal": 32.0888889,
+        "raw_longitude_deg": 34,
+        "raw_longitude_min": 47,
+        "raw_longitude_sec": 1,
+        "raw_latitude_deg": 32,
+        "raw_latitude_min": 5,
+        "raw_latitude_sec": 20,
+        "device_time": "2026-04-22T12:30:00.000Z",
+        "received_at": "2026-04-25T11:22:33.000Z",
+        "class_name": "A1",
+        "distance_km": 0.329,
+        "is_far_from_teacher": false
+      },
+      {
+        "student_id_number": "323000005",
+        "longitude_decimal": 34.7725000,
+        "latitude_decimal": 32.0827778,
+        "raw_longitude_deg": 34,
+        "raw_longitude_min": 46,
+        "raw_longitude_sec": 21,
+        "raw_latitude_deg": 32,
+        "raw_latitude_min": 4,
+        "raw_latitude_sec": 58,
+        "device_time": "2026-04-22T12:34:00.000Z",
+        "received_at": "2026-04-25T11:22:33.000Z",
+        "class_name": "A1",
+        "distance_km": 3.412,
+        "is_far_from_teacher": true
+      }
+    ]
+  }
+
+Common error responses:
+- 401: { "error": "Authentication required." }
+- 403: { "error": "Teacher access only." }
+- 404: { "error": "Teacher not found." }
+- 404: { "error": "Latest teacher location not found for this teacher." }
 
 ## Common Error Shape
 Most endpoints return:

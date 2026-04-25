@@ -47,6 +47,12 @@ export const getLatestLocations = async ({ class_name }) => {
   return response.data
 }
 
+/* Fetches class students latest locations with distance and >3km teacher alert flag. */
+export const getLocationsWithAlerts = async () => {
+  const response = await api.get('/tracking/locations-alerts')
+  return response.data
+}
+
 /* Creates a new student record. */
 export const createStudent = async (payload) => {
   const response = await api.post('/students', payload)

@@ -17,6 +17,16 @@ const theme = createTheme({
       default: '#f4f7fb',
     },
   },
+  typography: {
+    fontFamily: [
+      '"Plus Jakarta Sans"',
+      '"Segoe UI"',
+      'Tahoma',
+      'Geneva',
+      'Verdana',
+      'sans-serif',
+    ].join(','),
+  },
 })
 
 createRoot(document.getElementById('root')).render(
