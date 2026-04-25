@@ -7,18 +7,25 @@ const dmsToDecimal = (degrees, minutes, seconds) => (
 
 const teacherTrackingPayloads = [
   {
+    /* TEACHER 1 (ID: 302111111): Central Tel Aviv
+      some students will be within 3 km,
+      some students will be far. (more than 3 km)
+    */
     ID: '302111111',
     Coordinates: {
-      Longitude: { Degrees: '34', Minutes: '55', Seconds: '80' },
-      Latitude: { Degrees: '32', Minutes: '05', Seconds: '15' },
+      Longitude: { Degrees: '34', Minutes: '47', Seconds: '30' },
+      Latitude: { Degrees: '32', Minutes: '06', Seconds: '20' },
     },
     Time: '2026-04-22T13:00:00Z',
   },
   {
+    /* TEACHER 2 (ID: 302222222): Far North (Herzliya)
+       - All students will remain > 10 km (FAR)
+    */
     ID: '302222222',
     Coordinates: {
-      Longitude: { Degrees: '34', Minutes: '49', Seconds: '30' },
-      Latitude: { Degrees: '32', Minutes: '07', Seconds: '40' },
+      Longitude: { Degrees: '34', Minutes: '50', Seconds: '00' },
+      Latitude: { Degrees: '32', Minutes: '10', Seconds: '00' },
     },
     Time: '2026-04-22T13:05:00Z',
   },
