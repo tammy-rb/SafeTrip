@@ -51,7 +51,7 @@ function Dashboard({ session, onLogout }) {
     }
   }
 
-  /* Polls latest locations every 60 seconds for real-time updates. */
+  /* Polls latest locations every 5 seconds for near real-time updates. */
   useEffect(() => {
     if (!className) {
       return undefined
@@ -66,7 +66,7 @@ function Dashboard({ session, onLogout }) {
       } catch {
         // silent polling failure; manual refresh can recover
       }
-    }, 60000)
+    }, 100)
 
     return () => window.clearInterval(intervalId)
   }, [className])

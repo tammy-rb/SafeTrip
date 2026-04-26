@@ -39,6 +39,20 @@ router.get('/locations-alerts', requireAuth, requireTeacher, async (req, res) =>
   }
 });
 
+/* Returns latest location for the currently authenticated student. */
+router.get('/my-latest', requireAuth, async (req, res) => {
+  try {
+    if (req.user?.role !== 'student') {
+      return res.status(403).json({ error: 'Student access only.' });
+    }
+
+    const row = await TrackingBL.getLatestByIdNumber(req.user.id_number);
+    return res.status(200).json(row);
+  } catch (error) {
+    return res.status(error.status || 500).json({ error: error.message });
+  }
+});
+
 /* Returns the latest location row for one student. */
 router.get('/latest/:id_number', requireAuth, requireTeacher, async (req, res) => {
   try {

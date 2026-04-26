@@ -1,16 +1,37 @@
-# React + Vite
+# SafeTrip Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the React client for SafeTrip.
+It has two user experiences: teacher dashboard and student page.
 
-Currently, two official plugins are available:
+## Main Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Teacher dashboard
+- View students of the teacher class.
+- Search students by ID.
+- Add a new student.
+- View student markers on map.
+- See too-far students highlighted (red marker when distance is over 3 km).
+- Refresh location data automatically every 5 seconds.
 
-## React Compiler
+### Student page
+- View own profile details.
+- Send a new tracking update with one button.
+- The send button reads latest location and submits a new point around 100m east.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React + Vite
+- Material UI
+- Leaflet + react-leaflet
+- Axios
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Run Client
+
+1. Install dependencies:
+- npm install
+
+2. Start development server:
+- npm run dev
+
+By default the client calls server at http://localhost:5000.
+You can override this with VITE_API_URL.

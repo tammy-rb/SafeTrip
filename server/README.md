@@ -1,9 +1,13 @@
 # SafeTrip Server API
 
-This server provides:
-- Authentication (register, login, logout) with JWT cookie
-- Teachers and students management
-- Student tracking latest location endpoints
+This server is the backend for SafeTrip.
+It handles authentication, teacher and student data, location ingest, and location-based class alerts.
+
+At a glance, it provides:
+- JWT cookie authentication (register, login, logout)
+- Teacher and student data APIs
+- Student location ingest and latest-location retrieval
+- Teacher class alerts based on distance from teacher location
 
 ## Base URL
 - Local: http://localhost:5000
@@ -18,7 +22,7 @@ This server provides:
    - npm run start
 
 ## Environment Variables
-Create .env in the project root (one level above server) with:
+Create a .env file in the project root (one level above server) with:
 - MYSQL_HOST
 - MYSQL_USER
 - MYSQL_PASSWORD
@@ -33,13 +37,13 @@ Example values:
 - JWT_SECRET=your-secret-key
 
 ## Authentication Model
-- Login/Register returns a JWT in an httpOnly cookie named jwt.
+Login/Register returns a JWT in an httpOnly cookie named jwt.
 - Cookie settings:
   - httpOnly: true
   - sameSite: strict
   - secure: true in production
   - maxAge: 1 day
-- Teachers-only protection is applied to:
+- Teacher-only protection is applied to:
   - /students/*
   - /teachers/*
 - Tracking POST endpoint requires authentication.

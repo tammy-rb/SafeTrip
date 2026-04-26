@@ -53,6 +53,18 @@ export const getLocationsWithAlerts = async () => {
   return response.data
 }
 
+/* Fetches the latest location row for the authenticated student. */
+export const getMyLatestLocation = async () => {
+  const response = await api.get('/tracking/my-latest')
+  return response.data
+}
+
+/* Sends a new student tracking payload in device-like DMS format. */
+export const sendStudentLocation = async (payload) => {
+  const response = await api.post('/tracking/location', payload)
+  return response.data
+}
+
 /* Creates a new student record. */
 export const createStudent = async (payload) => {
   const response = await api.post('/students', payload)
