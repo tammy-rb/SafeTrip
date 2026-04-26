@@ -4,7 +4,7 @@ const getJwtSecret = () => process.env.JWT_SECRET || 'safeTripDefaultSecret';
 
 /*
   Verifies JWT from the cookie and attaches decoded payload to `req.user`.
-  Payload contains: `id_number`, `role`, and standard JWT timestamps.
+  Payload contains: `id_number`, `role`, etc.
 */
 const requireAuth = (req, res, next) => {
   const token = req.cookies?.jwt;

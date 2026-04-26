@@ -1,13 +1,10 @@
 # SafeTrip Server API
 
-This server is the backend for SafeTrip.
-It handles authentication, teacher and student data, location ingest, and location-based class alerts.
-
-At a glance, it provides:
+The server provides:
 - JWT cookie authentication (register, login, logout)
 - Teacher and student data APIs
-- Student location ingest and latest-location retrieval
-- Teacher class alerts based on distance from teacher location
+- Student location updates and latest-location retrieval
+- alerts for teachers for too-far students
 
 ## Base URL
 - Local: http://localhost:5000
@@ -29,25 +26,9 @@ Create a .env file in the project root (one level above server) with:
 - MYSQL_DB
 - JWT_SECRET
 
-Example values:
-- MYSQL_HOST=127.0.0.1
-- MYSQL_USER=root
-- MYSQL_PASSWORD=your_password
-- MYSQL_DB=SafeClassDB
-- JWT_SECRET=your-secret-key
-
 ## Authentication Model
-Login/Register returns a JWT in an httpOnly cookie named jwt.
-- Cookie settings:
-  - httpOnly: true
-  - sameSite: strict
-  - secure: true in production
-  - maxAge: 1 day
-- Teacher-only protection is applied to:
-  - /students/*
-  - /teachers/*
-- Tracking POST endpoint requires authentication.
-- Tracking GET endpoints require teacher authentication.
+Login and register return a JWT cookie that is valid for 1 day.
+The cookie contains the user identity details and is used by protected routes for authentication and user recognition.
 
 ## Health Endpoints
 ### GET /health
@@ -76,7 +57,7 @@ Validation rules:
 - id_number must exist in Teachers or Students
 - user must not already be registered in Passwords
 
-Success response 201:
+Success response 201 (created):
 - {
     "message": "Registration successful",
     "role": "teacher",
@@ -239,8 +220,10 @@ Current behavior:
 - No history table.
 - One latest location row per student id_number (upsert/replace).
 
+next, i would like to make a log for locations post requests, so i can view any student location history.
+
 Access rules:
-- POST /tracking/location requires student authentication and only for the same student ID.
+- POST /tracking/location requires student authentication and only for the same student ID 
 - GET /tracking/latest and GET /tracking/latest/:id_number are teacher-only.
 - GET /tracking/locations-alerts is teacher-only.
 
@@ -259,7 +242,6 @@ Request body format:
   }
 
 Validation:
-- ID must be 9 digits
 - Coordinates.Longitude and Coordinates.Latitude are required
 - Degrees/minutes/seconds must be valid integers and ranges
 - Time must be valid ISO date
@@ -324,8 +306,8 @@ Not found 404:
 
 ### GET /tracking/locations-alerts
 Description:
-- Returns latest locations for the authenticated teacher's students, plus air-distance and alert flag per student.
-- Teacher is identified from JWT cookie (`jwt`), not from query/body.
+- Returns latest locations for the teacher's students, plus air-distance and alert flag per student.
+- Teacher is identified from JWT cookie (`jwt`).
 - Distance is computed as straight-line (Haversine) and alert is true when distance is greater than 3 km.
 
 Request:
@@ -385,12 +367,3 @@ Success response 200:
     ]
   }
 
-Common error responses:
-- 401: { "error": "Authentication required." }
-- 403: { "error": "Teacher access only." }
-- 404: { "error": "Teacher not found." }
-- 404: { "error": "Latest teacher location not found for this teacher." }
-
-## Common Error Shape
-Most endpoints return:
-- { "error": "some message" }

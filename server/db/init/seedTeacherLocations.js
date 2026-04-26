@@ -7,7 +7,7 @@ const dmsToDecimal = (degrees, minutes, seconds) => (
 
 const teacherTrackingPayloads = [
   {
-    /* TEACHER 1 (ID: 302111111): Central Tel Aviv
+    /* TEACHER 1 (ID: 302111111): 
       some students will be within 3 km,
       some students will be far. (more than 3 km)
     */
@@ -19,7 +19,7 @@ const teacherTrackingPayloads = [
     Time: '2026-04-22T13:00:00Z',
   },
   {
-    /* TEACHER 2 (ID: 302222222): Far North (Herzliya)
+    /* TEACHER 2 (ID: 302222222): 
        - All students will remain > 10 km (FAR)
     */
     ID: '302222222',

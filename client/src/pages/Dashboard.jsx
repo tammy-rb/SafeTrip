@@ -66,7 +66,7 @@ function Dashboard({ session, onLogout }) {
       } catch {
         // silent polling failure; manual refresh can recover
       }
-    }, 100)
+    }, 1000)
 
     return () => window.clearInterval(intervalId)
   }, [className])
